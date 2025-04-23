@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>情绪自检助手 - MoodCheck</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-color: #6a5acd;
+            --primary-light: #9c8cff;
+            --primary-dark: #483d8b;
+            --secondary-color: #ff7f50;
+            --text-color: #333;
+            --light-text: #666;
+            --bg-color: #f8f9fa;
+            --card-bg: #fff;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --border-radius: 16px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            min-height: 100vh;
+            padding: 15px;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 25px 20px;
+            min-height: 80vh;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        
+        .section {
+            display: none;
+            animation: fadeInUp 0.5s;
+        }
+        
+        .section.active {
+            display: block;
+        }
+        
+        #home-section {
+            text-align: center;
+            padding: 30px 0;
+        }
+        
+        .welcome-text {
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            color: var(--light-text);
+            line-height: 1.8;
+        }
+        
+        .emoji-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            display: inline-block;
+            animation: pulse 2s infinite;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 14px 28px;
+            background: linear-gradient(45deg, var(--primary-color), var(--primary-light));
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin: 10px 0;
+            width: 80%;
+            max-width: 300px;
+            box-shadow: 0 4px 15px rgba(106, 90, 205, 0.3);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 20px rgba(106, 90, 205, 0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(1px);
+        }
+        
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, var(--primary-light), var(--primary-color));
+            opacity: 0;
+            z-index: -1;
+            transition: opacity 0.3s ease;
+        }
+        
+        .btn:hover::after {
+            opacity: 1;
+        }
+        
+        .btn i {
+            margin-right: 8px;
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(45deg, #ff7f50, #ff9966);
+            box-shadow: 0 4px 15px rgba(255, 127, 80, 0.3);
+        }
+        
+        .btn-secondary::after {
+            background: linear-gradient(45deg, #ff9966, #ff7f50);
+        }
+        
+        #question-section {
+            padding: 20px 0;
+        }
+        
+        .question-container {
+            margin-bottom: 30px;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .question-text {
+            font-size: 1.2rem;
+            margin-bottom: 25px;
+            font-weight: 500;
+            color: var(--primary-dark);
+            line-height: 1.7;
+        }
+        
+        .question-options {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .progress {
+            margin-top: 30px;
+            text-align: center;
+            color: var(--light-text);
+            font-size: 0.9rem;
+        }
+        
+        .progress-bar {
+            height: 6px;
+            background-color: #e9ecef;
+            border-radius: 3px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-light), var(--primary-color));
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+        
+        #suggestion-section {
+            padding: 20px 0;
+        }
+        
+        .suggestion-container {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .suggestion-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+        }
+        
+        .suggestion-title i {
+            margin-right: 10px;
+            font-size: 1.5rem;
+        }
+        
+        .suggestion-content {
+            margin-bottom: 20px;
+            line-height: 1.8;
+            color: var(--text-color);
+            font-size: 1.05rem;
+            font-weight: 500;
+            padding: 5px 0 15px 0;
+            border-bottom: 1px solid rgba(106, 90, 205, 0.2);
+        }
+        
+        .suggestion-tips {
+            background-color: rgba(106, 90, 205, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .suggestion-steps {
+            padding: 15px 5px;
+            margin: 20px 0;
+            border-bottom: 1px solid rgba(106, 90, 205, 0.2);
+        }
+        
+        .suggestion-step {
+            margin-bottom: 12px;
+            position: relative;
+            padding-left: 35px;
+        }
+        
+        .suggestion-step-number {
+            position: absolute;
+            left: 0;
+            top: 2px;
+            width: 25px;
+            height: 25px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .suggestion-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            border-left: 3px solid var(--secondary-color);
+        }
+        
+        .emoji-highlight {
+            font-size: 2.5rem;
+            text-align: center;
+            margin: 10px 0 20px 0;
+            display: block;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .section-title {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+        
+        .section-title i {
+            margin-right: 8px;
+        }
+        
+        .suggestion-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        
+        .medical-notice {
+            font-style: italic;
+            color: #dc3545;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            padding: 10px;
+            border-left: 3px solid #dc3545;
+            background-color: rgba(220, 53, 69, 0.05);
+            display: none;
+        }
+        
+        .medical-notice.visible {
+            display: block;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+            100% {
+                transform: translateY(0px);
+            }
+        }
+        
+        .floating {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        /* 移动端优化 */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 20px 15px;
+                border-radius: 12px;
+            }
+            
+            h1 {
+                font-size: 1.6rem;
+            }
+            
+            .welcome-text {
+                font-size: 1rem;
+                padding: 0 10px;
+            }
+            
+            .question-text {
+                font-size: 1.1rem;
+            }
+            
+            .btn {
+                width: 90%;
+                padding: 12px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>情绪自检助手</h1>
+        
+        <!-- 首页区域 -->
+        <div id="home-section" class="section active">
+            <div class="emoji-icon floating">😊</div>
+            <p class="welcome-text">欢迎使用情绪自检助手，这是一个帮助你快速识别情绪波动原因的工具。<br>通过检查一系列简单的问题，你可以找到可能的原因并获得改善建议。<br>你不需要完成所有问题，只要找到关键的那一个问题就能解决了！</p>
+            <button id="start-check-btn" class="btn animate__animated animate__pulse animate__infinite animate__slower"><i class="bi bi-heart-pulse"></i> 开始自检</button>
+        </div>
+        
+        <!-- 问题区域 -->
+        <div id="question-section" class="section">
+            <div class="question-container">
+                <p class="question-text" id="current-question"></p>
+                <div class="question-options">
+                    <button id="yes-btn" class="btn"><i class="bi bi-check-circle"></i> 查看建议</button>
+                    <button id="no-btn" class="btn btn-secondary"><i class="bi bi-x-circle"></i> 下一个问题</button>
+                </div>
+            </div>
+            <div class="progress">
+                <span id="progress-text"></span>
+                <div class="progress-bar">
+                    <div class="progress-bar-fill" id="progress-bar-fill"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 建议区域 -->
+        <div id="suggestion-section" class="section">
+            <div class="suggestion-container">
+                <h3 class="section-title"><i class="bi bi-lightbulb"></i> <span id="problem-title"></span></h3>
+                <div class="emoji-highlight" id="emoji-highlight"></div>
+                <div class="suggestion-content" id="suggestion-content"></div>
+                <div class="suggestion-tips" id="suggestion-tips"></div>
+                <div class="suggestion-steps" id="suggestion-steps"></div>
+                <div class="suggestion-card" id="suggestion-card"></div>
+                <p class="medical-notice" id="medical-notice"></p>
+            </div>
+            <div class="suggestion-actions">
+                <button id="accept-btn" class="btn"><i class="bi bi-check2-all"></i> 应用建议并结束</button>
+                <button id="continue-btn" class="btn btn-secondary"><i class="bi bi-arrow-right-circle"></i> 这不是我的问题，继续检查</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 问题和建议数据
+        const questionsData = [
+            {
+                id: 1,
+                question: "我是不是饿了？我今天吃了多少东西，和平时相比较呢？",
+                problem: "你可能处于饥饿状态 🍽️",
+                suggestion: "饥饿会直接影响我们的情绪稳定性，让我们更容易烦躁、焦虑或疲惫。",
+                tips: "注意观察进食后情绪是否有所改善。研究表明，血糖水平波动会直接影响情绪，保持规律的饮食习惯对情绪稳定很重要。",
+                steps: [
+                    "尝试吃一些健康的食物，如水果、坚果或全麦面包",
+                    "避免高糖分食物，它们可能导致血糖快速升高后迅速下降",
+                    "建立规律的饮食计划，每天定时进食",
+                    "准备一些健康的零食，以防饥饿突然袭来"
+                ],
+                fact: "科学研究表明，饥饿状态下人体会释放更多压力荷尔蒙皮质醇，这会直接影响我们的情绪状态。",
+                medical: false,
+                emoji: "🍎"
+            },
+            {
+                id: 2,
+                question: "我是不是渴了？我今天喝了多少水，和平时相比较呢？",
+                problem: "你可能处于轻度脱水状态 💧",
+                suggestion: "即使是轻度脱水也会显著影响认知功能和情绪状态，让人感到疲劳、烦躁和注意力不集中。",
+                tips: "研究表明，体重下降2%的脱水状态就能导致认知功能下降。保持水分摄入对大脑功能至关重要。",
+                steps: [
+                    "立即补充水分，成年人每天应该喝约2升水",
+                    "尝试随身携带水杯，定时饮水",
+                    "设置饮水提醒，每小时至少喝一小杯水",
+                    "观察尿液颜色，淡黄色表示水分充足"
+                ],
+                fact: "大脑约75%是水分，即使轻微脱水也会影响神经传导和情绪调节能力。",
+                medical: false,
+                emoji: "🥤"
+            },
+            {
+                id: 3,
+                question: "我是不是想上厕所了，我有多长时间没有上厕所？",
+                problem: "你可能需要排泄 🚻",
+                suggestion: "憋尿或便意会给身体带来不适感，这种不适会转化为情绪烦躁和专注力下降。",
+                tips: "人体的排泄需求是基本生理需求，忽视这些需求会对健康和情绪产生负面影响。",
+                steps: [
+                    "及时上厕所，不要长时间憋尿或便便",
+                    "培养规律的排泄习惯，如定时如厕",
+                    "保持充足的水分摄入，有助于维持健康的排泄习惯",
+                    "注意观察排泄后情绪和舒适度的变化"
+                ],
+                fact: "膀胱胀满会刺激交感神经系统，导致压力激素释放增加，影响情绪稳定性。",
+                medical: false,
+                emoji: "🚽"
+            },
+            {
+                id: 4,
+                question: "我有没有感觉有点冷？",
+                problem: "你可能感到寒冷 ❄️",
+                suggestion: "寒冷会导致肌肉紧张和身体收缩，这种生理反应可能会触发紧张和防御情绪。",
+                tips: "体温调节对情绪状态有显著影响，感到舒适的温度有助于维持情绪平衡。",
+                steps: [
+                    "添加衣物或调整室温，确保身体温暖",
+                    "喝一杯热饮，如热茶或热水，帮助身体升温",
+                    "活动身体，促进血液循环和产热",
+                    "使用毛毯或热水袋提供额外的温暖"
+                ],
+                fact: "研究表明，环境温度在21-24°C之间时，人的情绪状态和认知功能表现最佳。",
+                medical: false,
+                emoji: "🧣"
+            },
+            {
+                id: 5,
+                question: "我有没有感觉有点热？",
+                problem: "你可能感到过热 🔥",
+                suggestion: "过热会导致不适和烦躁，身体需要消耗更多能量来降温，这会增加疲劳感和压力感。",
+                tips: "高温环境会影响大脑中的神经递质平衡，特别是影响血清素的分泌，这可能导致烦躁情绪增加。",
+                steps: [
+                    "减少衣物或调低室温，确保身体凉爽",
+                    "喝冷水或吃冰镇食物帮助降温",
+                    "使用风扇或空调降低环境温度",
+                    "用冷水洗脸或冷敷额头，快速降温"
+                ],
+                fact: "人体在高温环境下会释放更多的压力荷尔蒙，导致焦虑感增加和情绪波动。",
+                medical: false,
+                emoji: "🧊"
+            },
+            {
+                id: 6,
+                question: "我有没有很长时间保持相同的姿势，导致身体有一点不适？",
+                problem: "你可能需要活动身体 🤸",
+                suggestion: "长时间保持同一姿势会导致肌肉紧张和血液循环不畅，这些身体不适会转化为注意力下降和情绪烦躁。",
+                tips: "研究表明，每30-60分钟活动一次身体可以显著改善血液循环、减轻肌肉紧张，并提升情绪状态。",
+                steps: [
+                    "起身活动一下，做些简单的伸展运动",
+                    "尝试旋转颈部、手腕和脚踝，放松关节",
+                    "做几个深呼吸，放松紧张的肌肉",
+                    "设置提醒，定时站起来走动几分钟"
+                ],
+                fact: "久坐会减少大脑血流量，导致认知功能暂时下降和情绪低落。每小时活动5分钟可以逆转这些负面影响。",
+                medical: false,
+                emoji: "🧘"
+            },
+            {
+                id: 7,
+                question: "我是不是想洗澡了？有没有感觉身上有细微的难受？",
+                problem: "你可能需要洗澡或清洁 🚿",
+                suggestion: "身体不清爽会导致不适感和自我意识增强，影响社交信心和情绪状态。",
+                tips: "洗澡不仅能清洁身体，还能促进血液循环和释放内啡肽，有助于缓解压力和改善情绪。",
+                steps: [
+                    "洗个温水澡或简单清洁身体",
+                    "使用喜欢的香皂或沐浴露，享受香气带来的愉悦感",
+                    "洗澡后换上干净舒适的衣物",
+                    "建立规律的个人卫生习惯，维持身体舒适度"
+                ],
+                fact: "温水浴可以降低压力荷尔蒙皮质醇的水平，并促进放松荷尔蒙血清素的释放，帮助缓解焦虑和改善情绪。",
+                medical: false,
+                emoji: "🛁"
+            },
+            {
+                id: 8,
+                question: "我是不是累了？今天的体力和脑力使用到什么程度了，做了多少事？",
+                problem: "你可能处于疲劳状态 😴",
+                suggestion: "疲劳会降低我们的情绪调节能力，导致对负面刺激更敏感，对积极刺激反应更弱。",
+                tips: "大脑和身体都需要定期休息才能保持最佳状态。研究表明，短暂休息可以显著提高注意力和情绪状态。",
+                steps: [
+                    "适当休息，可以小睡20-30分钟进行能量恢复",
+                    "进行放松活动，如听音乐或深呼吸",
+                    "减少屏幕时间，给眼睛和大脑减轻负担",
+                    "调整今天剩余任务的优先级，必要时推迟一些任务"
+                ],
+                fact: "研究表明，持续工作90-120分钟后，大脑需要至少15分钟的完全休息才能恢复最佳功能状态。",
+                medical: false,
+                emoji: "💤"
+            },
+            {
+                id: 9,
+                question: "我有没有睡好？昨天的睡眠是否充足？最近一段时间的睡眠是否充足？",
+                problem: "你可能存在睡眠不足问题 🛌",
+                suggestion: "睡眠不足会降低前额叶皮质（负责情绪调节的脑区）的功能，导致情绪波动增加和抑制能力下降。",
+                tips: "成年人每晚需要7-9小时的睡眠，青少年可能需要8-10小时。长期睡眠不足会对情绪和认知功能造成严重影响。",
+                steps: [
+                    "尝试今晚早点睡觉，确保足够的睡眠时间",
+                    "保持规律的睡眠时间表，包括周末",
+                    "睡前1小时避免使用电子设备，减少蓝光暴露",
+                    "创造舒适的睡眠环境：安静、黑暗、凉爽"
+                ],
+                fact: "一项研究发现，睡眠不足一晚会导致对消极情绪的大脑杏仁核反应增加60%，显著影响情绪调节能力。",
+                medical: true,
+                emoji: "🌙"
+            },
+            {
+                id: 10,
+                question: "我是不是快来月经了？上次来月经是什么时候？",
+                problem: "你可能处于经前期 📅",
+                suggestion: "经前期荷尔蒙波动会影响神经递质水平，特别是血清素，这可能导致情绪波动、焦虑或抑郁感增加。",
+                tips: "了解自己的月经周期和相关症状模式，可以帮助你更好地预测和管理情绪变化。",
+                steps: [
+                    "记录症状，了解自己的生理周期规律",
+                    "适当休息，减轻身体负担",
+                    "可以使用热敷缓解腹部或腰部不适",
+                    "保持轻度运动，如散步或伸展，有助于缓解症状"
+                ],
+                fact: "研究显示，高达80%的女性在月经前会经历一些情绪或身体症状，这是激素变化的自然结果，而非心理问题。",
+                medical: true,
+                emoji: "📊"
+            },
+            {
+                id: 11,
+                question: "我有没有喝咖啡、茶或者功能饮料？有没有摄入咖啡因或者其他会引起情绪变化的物质？",
+                problem: "你可能摄入了过量咖啡因或其他刺激性物质 ☕",
+                suggestion: "咖啡因和其他刺激物会激活交感神经系统，增加肾上腺素和皮质醇分泌，可能导致焦虑、心悸和情绪波动。",
+                tips: "咖啡因在体内的半衰期约为5-6小时，这意味着中午喝的咖啡可能在睡前仍然影响你的神经系统。",
+                steps: [
+                    "减少咖啡因摄入，特别是下午和晚上",
+                    "多喝水以帮助身体代谢这些物质",
+                    "观察减少咖啡因后情绪的变化",
+                    "尝试用草本茶或其他无咖啡因饮料替代"
+                ],
+                fact: "研究表明，对咖啡因敏感的人即使摄入少量（如一杯咖啡中的量）也可能体验到焦虑增加和注意力集中困难。",
+                medical: false,
+                emoji: "🍵"
+            },
+            {
+                id: 12,
+                question: "这种异常情绪是否从今天的某一个时间段开始？是否从某段与他人的互动开始？能详细说说当时的情况吗？",
+                problem: "你可能经历了情绪触发事件 🔍",
+                suggestion: "特定事件或互动可能触发了情绪反应，识别这些触发因素是情绪管理的第一步。",
+                tips: "我们的情绪反应通常与过去的经历和内在信念有关，识别触发事件模式有助于发现潜在的心理需求。",
+                steps: [
+                    "回顾当时的情况，思考是什么触发了情绪变化",
+                    "写下具体的事件、你的想法和情绪反应",
+                    "思考类似情境是否曾引发相似反应",
+                    "探索可能的应对策略，如何在未来类似情况中保持平衡"
+                ],
+                fact: "心理学研究表明，情绪并非直接由事件引起，而是由我们对事件的解释和评价产生。改变思考模式可以改变情绪反应。",
+                medical: false,
+                emoji: "📝"
+            },
+            {
+                id: 13,
+                question: "我是否有未完的工作？是否有准备做但拖延许久的事物？是否有正在进行中但一直拖延的长期计划？",
+                problem: "你可能面临拖延压力 ⏰",
+                suggestion: "未完成的任务会在潜意识中占据心理空间，创造持续的低强度压力，这被称为'Zeigarnik效应'。",
+                tips: "将大任务分解为小步骤可以降低开始行动的心理门槛，每完成一个小步骤就能获得成就感和动力。",
+                steps: [
+                    "列出待办事项，将大任务分解为小步骤",
+                    "设定明确的截止日期和优先级",
+                    "使用番茄工作法等技巧，集中注意力完成任务",
+                    "每完成一个任务就给自己一个小奖励，强化积极行为"
+                ],
+                fact: "研究表明，拖延通常不是懒惰的表现，而是情绪调节的一种方式。人们拖延是为了暂时逃避与任务相关的负面情绪，如焦虑或无聊。",
+                medical: false,
+                emoji: "📋"
+            },
+            {
+                id: 14,
+                question: "我是否住在不方便、不干净、不宜居的环境中？我的屋子脏吗？",
+                problem: "你的生活环境可能需要改善 🏠",
+                suggestion: "杂乱或不舒适的环境会增加心理压力，减少放松和恢复的能力，同时可能触发潜意识的不安全感。",
+                tips: "环境心理学研究表明，我们的物理空间直接影响心理状态。整洁有序的环境能带来心理上的舒适和控制感。",
+                steps: [
+                    "花些时间整理和清洁你的生活空间",
+                    "从一个小区域开始，如书桌或厨房",
+                    "丢弃或捐赠不再需要的物品，减少杂物",
+                    "创造一个专门的放松空间，即使只是角落也可以"
+                ],
+                fact: "一项研究发现，参与者在描述自己家中杂乱的房间时，皮质醇(压力荷尔蒙)水平更高，表明环境杂乱与生理压力反应有直接关联。",
+                medical: false,
+                emoji: "🧹"
+            },
+            {
+                id: 15,
+                question: "我是不是本周内没有适当锻炼？",
+                problem: "你可能缺乏身体活动 🏃",
+                suggestion: "定期运动能释放内啡肽和多巴胺等快乐物质，同时减少压力荷尔蒙的水平，对情绪调节有显著帮助。",
+                tips: "世界卫生组织建议成年人每周至少进行150分钟中等强度运动，可以分散进行，如每天30分钟。",
+                steps: [
+                    "尝试进行30分钟的中等强度运动，如快走、慢跑或骑自行车",
+                    "选择你喜欢的活动，增加坚持的可能性",
+                    "邀请朋友一起锻炼，增加社交动力",
+                    "设定合理的运动目标，逐步增加强度和时间"
+                ],
+                fact: "研究表明，即使是单次30分钟的中等强度运动也能立即改善情绪状态，这种效果可以持续数小时。",
+                medical: false,
+                emoji: "🚴"
+            },
+            {
+                id: 16,
+                question: "我是否本周内没有充足的戸外感受？",
+                problem: "你可能缺乏户外活动和自然接触 🌳",
+                suggestion: "接触自然环境能降低压力激素水平，改善注意力和情绪状态，这种现象被称为'自然恢复'。",
+                tips: "研究表明，即使只是20分钟的户外活动，也能显著降低压力荷尔蒙皮质醇的水平。",
+                steps: [
+                    "尝试外出散步，特别是在有树木或公园的地方",
+                    "午休时间可以短暂外出，感受阳光和新鲜空气",
+                    "周末安排更长时间的户外活动，如远足或骑行",
+                    "在家中或工作场所增加植物，创造微型自然环境"
+                ],
+                fact: "日本的研究证实，在森林中散步('森林浴')可以降低心率、血压和压力荷尔蒙水平，同时增强免疫系统功能。",
+                medical: false,
+                emoji: "🌞"
+            },
+            {
+                id: 17,
+                question: "我是否本周内没有与人进行一定的社交？",
+                problem: "你可能缺乏社交互动 👥",
+                suggestion: "积极的社交互动会促进催产素（社交连接荷尔蒙）的释放，增强归属感和安全感，降低压力反应。",
+                tips: "质量比数量更重要，一次有意义的深入交流比多次浅层互动对情绪健康更有益。",
+                steps: [
+                    "联系朋友或家人，进行简短的交谈或聚会",
+                    "参加社区活动或兴趣小组，结识新朋友",
+                    "尝试线上交流，如视频通话或参与在线社区",
+                    "培养深入交流的能力，分享真实感受和想法"
+                ],
+                fact: "哈佛大学的一项长期研究发现，强健的社交关系是预测幸福感和寿命的最重要因素之一，甚至超过了财富或健康状况。",
+                medical: false,
+                emoji: "🤝"
+            },
+            {
+                id: 18,
+                question: "我是否两个周内没有尝试新的东西，没有获得新的经验，没有对世界作出新的探索，也没有得到这方面的正反馈？",
+                problem: "你可能缺乏新鲜感和成就感 ✨",
+                suggestion: "新鲜体验会刺激大脑释放多巴胺（奖励神经递质），带来动力和满足感，对抗单调和情绪低落。",
+                tips: "尝试新事物不必是大项目，小的改变和探索同样能激活大脑的奖励系统，带来成就感和满足感。",
+                steps: [
+                    "尝试一项新活动或学习新技能，哪怕是很小的事情",
+                    "改变日常习惯，如尝试新的步行路线或烹饪新菜谱",
+                    "设定小目标并庆祝完成，创造成就体验",
+                    "探索创造性活动，如绘画、写作或音乐，不需精通，只需享受过程"
+                ],
+                fact: "心理学研究表明，持续的新鲜体验和学习能显著提高生活满意度，并可能延缓认知功能衰退，这种现象被称为'神经可塑性'。",
+                medical: false,
+                emoji: "🎯"
+            }
+        ];
+
+        // 综合建议（当用户完成所有问题都未找到原因时显示）
+        const generalSuggestion = {
+            problem: "未找到明确的情绪波动原因 🤔",
+            suggestion: "有时情绪波动可能是多种因素共同作用的结果，或者是我们尚未探索的原因导致的。",
+            tips: "持续观察和记录情绪变化，可以帮助你发现更深层次的模式和触发因素。",
+            steps: [
+                "尝试记录每日情绪变化，寻找可能的规律",
+                "保持规律的作息、饮食和运动习惯",
+                "学习基础的情绪管理技巧，如深呼吸、正念冥想等",
+                "如果情绪问题持续存在或加重，考虑咨询专业心理医生"
+            ],
+            fact: "情绪健康就像身体健康一样需要日常维护。研究表明，定期的自我关注和情绪觉察可以显著提高情绪韧性和生活满意度。",
+            medical: true,
+            emoji: "📔"
+        };
+
+        // DOM元素
+        const sections = {
+            home: document.getElementById('home-section'),
+            question: document.getElementById('question-section'),
+            suggestion: document.getElementById('suggestion-section')
+        };
+
+        // 按钮
+        const startBtn = document.getElementById('start-check-btn');
+        const yesBtn = document.getElementById('yes-btn');
+        const noBtn = document.getElementById('no-btn');
+        const acceptBtn = document.getElementById('accept-btn');
+        const continueBtn = document.getElementById('continue-btn');
+
+        // 文本元素
+        const currentQuestionEl = document.getElementById('current-question');
+        const progressTextEl = document.getElementById('progress-text');
+        const progressBarFillEl = document.getElementById('progress-bar-fill');
+        const problemTitleEl = document.getElementById('problem-title');
+        const suggestionContentEl = document.getElementById('suggestion-content');
+        const medicalNoticeEl = document.getElementById('medical-notice');
+
+        // 当前问题索引
+        let currentQuestionIndex = 0;
+
+        // 显示指定部分，隐藏其他部分
+        function showSection(sectionName) {
+            Object.keys(sections).forEach(key => {
+                sections[key].classList.remove('active');
+            });
+            sections[sectionName].classList.add('active');
+        }
+
+        // 显示当前问题
+        function showCurrentQuestion() {
+            const question = questionsData[currentQuestionIndex];
+            currentQuestionEl.textContent = question.question;
+            progressTextEl.textContent = `问题 ${currentQuestionIndex + 1}/${questionsData.length}`;
+            
+            // 更新进度条
+            const progressPercentage = ((currentQuestionIndex + 1) / questionsData.length) * 100;
+            progressBarFillEl.style.width = `${progressPercentage}%`;
+        }
+
+        // 显示建议
+        function showSuggestion(index) {
+            let data;
+            
+            // 判断是综合建议还是具体问题建议
+            if (index >= questionsData.length) {
+                data = generalSuggestion;
+            } else {
+                data = questionsData[index];
+            }
+            
+            // 设置问题标题
+            problemTitleEl.textContent = data.problem;
+            
+            // 设置emoji图标
+            document.getElementById('emoji-highlight').textContent = data.emoji;
+            
+            // 设置主要建议内容
+            suggestionContentEl.textContent = data.suggestion;
+            
+            // 设置提示内容
+            document.getElementById('suggestion-tips').textContent = data.tips;
+            
+            // 设置步骤内容
+            const stepsEl = document.getElementById('suggestion-steps');
+            stepsEl.innerHTML = ''; // 清空现有内容
+            
+            // 添加标题
+            const stepsTitle = document.createElement('h4');
+            stepsTitle.className = 'section-title';
+            stepsTitle.innerHTML = '<i class="bi bi-list-check"></i> 尝试这些步骤';
+            stepsEl.appendChild(stepsTitle);
+            
+            // 添加每个步骤
+            data.steps.forEach((step, idx) => {
+                const stepEl = document.createElement('div');
+                stepEl.className = 'suggestion-step';
+                
+                const numEl = document.createElement('span');
+                numEl.className = 'suggestion-step-number';
+                numEl.textContent = idx + 1;
+                
+                const textEl = document.createElement('span');
+                textEl.textContent = step;
+                
+                stepEl.appendChild(numEl);
+                stepEl.appendChild(textEl);
+                stepsEl.appendChild(stepEl);
+            });
+            
+            // 设置小知识内容
+            const cardEl = document.getElementById('suggestion-card');
+            cardEl.innerHTML = ''; // 清空现有内容
+            
+            const factTitle = document.createElement('h4');
+            factTitle.className = 'section-title';
+            factTitle.innerHTML = '<i class="bi bi-info-circle"></i> 小知识';
+            
+            const factContent = document.createElement('p');
+            factContent.textContent = data.fact;
+            
+            cardEl.appendChild(factTitle);
+            cardEl.appendChild(factContent);
+            
+            // 设置提示标题和内容
+            const tipsEl = document.getElementById('suggestion-tips');
+            tipsEl.innerHTML = ''; // 清空现有内容
+            
+            const tipsTitle = document.createElement('h4');
+            tipsTitle.className = 'section-title';
+            tipsTitle.innerHTML = '<i class="bi bi-stars"></i> 提示';
+            
+            const tipsContent = document.createElement('p');
+            tipsContent.textContent = data.tips;
+            
+            tipsEl.appendChild(tipsTitle);
+            tipsEl.appendChild(tipsContent);
+            
+            // 设置医疗警告
+            if (data.medical) {
+                medicalNoticeEl.textContent = "注意：这不是医疗建议。如果症状严重或持续存在，请咨询专业医疗人员。";
+                medicalNoticeEl.classList.add('visible');
+            } else {
+                medicalNoticeEl.textContent = "";
+                medicalNoticeEl.classList.remove('visible');
+            }
+            
+            // 检查是否是最后一个问题的综合建议
+            if (currentQuestionIndex >= questionsData.length) {
+                // 如果是最后一个问题的综合建议，隐藏继续按钮
+                continueBtn.style.display = 'none';
+            } else {
+                // 否则显示继续按钮
+                continueBtn.style.display = 'inline-block';
+            }
+            
+            showSection('suggestion');
+        }
+
+        // 事件监听
+        startBtn.addEventListener('click', () => {
+            currentQuestionIndex = 0;
+            showCurrentQuestion();
+            showSection('question');
+        });
+
+        yesBtn.addEventListener('click', () => {
+            showSuggestion(currentQuestionIndex);
+        });
+
+        noBtn.addEventListener('click', () => {
+            currentQuestionIndex++;
+            
+            if (currentQuestionIndex < questionsData.length) {
+                showCurrentQuestion();
+            } else {
+                // 已完成所有问题，显示综合建议
+                showSuggestion(currentQuestionIndex);
+            }
+        });
+
+        acceptBtn.addEventListener('click', () => {
+            showSection('home');
+        });
+
+        continueBtn.addEventListener('click', () => {
+            currentQuestionIndex++;
+            
+            if (currentQuestionIndex < questionsData.length) {
+                showCurrentQuestion();
+                showSection('question');
+            } else {
+                // 已完成所有问题，显示综合建议
+                showSuggestion(currentQuestionIndex);
+            }
+        });
+    </script>
+</body>
+</html>
