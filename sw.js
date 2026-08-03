@@ -1,4 +1,4 @@
-const CACHE_NAME = "mood-check-v2";
+const CACHE_NAME = "mood-check-v3";
 const PRECACHE_URLS = [
 	"/",
 	"/index.html",
